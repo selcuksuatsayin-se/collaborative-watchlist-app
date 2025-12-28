@@ -18,7 +18,7 @@ const WatchlistPage = () => {
   // Listeyi Getir
   const fetchWatchlist = async () => {
     try {
-      const res = await axios.get(`http://localhost:5000/api/watchlist`, getAuthHeaders());
+      const res = await axios.get(`https://collaborative-watchlist-app-backend.onrender.com/api/watchlist`, getAuthHeaders());
       // Gelen tüm listelerden şu anki ID'ye ait olanı bul (Backend'i tekil getirecek şekilde güncellemedik, bu pratik bir çözüm)
       const currentList = res.data.find(list => list._id === id);
       setWatchlist(currentList);
@@ -38,7 +38,7 @@ const WatchlistPage = () => {
     e.preventDefault();
     try {
       await axios.post(
-        `http://localhost:5000/api/watchlist/${id}/invite`,
+        `https://collaborative-watchlist-app-backend.onrender.com/api/watchlist/${id}/invite`,
         { email: inviteEmail },
         getAuthHeaders()
       );
@@ -56,7 +56,7 @@ const WatchlistPage = () => {
 
     try {
       await axios.delete(
-        `http://localhost:5000/api/watchlist/${id}/remove/${movieId}`,
+        `https://collaborative-watchlist-app-backend.onrender.com/api/watchlist/${id}/remove/${movieId}`,
         getAuthHeaders()
       );
       // State'i güncelle (Sayfayı yenilemeden filmi ekrandan sil)

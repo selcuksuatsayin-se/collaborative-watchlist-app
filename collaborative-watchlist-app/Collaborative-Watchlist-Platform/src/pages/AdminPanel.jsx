@@ -17,9 +17,9 @@ const AdminPanel = () => {
   const fetchData = async () => {
     try {
       const [statsRes, reviewsRes, usersRes] = await Promise.all([
-        axios.get("http://localhost:5000/api/admin/stats", getAuthHeaders()),
-        axios.get("http://localhost:5000/api/admin/reviews", getAuthHeaders()),
-        axios.get("http://localhost:5000/api/admin/users", getAuthHeaders())
+        axios.get("https://collaborative-watchlist-app-backend.onrender.com/api/admin/stats", getAuthHeaders()),
+        axios.get("https://collaborative-watchlist-app-backend.onrender.com/api/admin/reviews", getAuthHeaders()),
+        axios.get("https://collaborative-watchlist-app-backend.onrender.com/api/admin/users", getAuthHeaders())
       ]);
 
       setStats(statsRes.data);
@@ -40,7 +40,7 @@ const AdminPanel = () => {
   const handleDeleteReview = async (id) => {
     if(!window.confirm("Delete this review permanently?")) return;
     try {
-      await axios.delete(`http://localhost:5000/api/admin/review/${id}`, getAuthHeaders());
+      await axios.delete(`https://collaborative-watchlist-app-backend.onrender.com/api/admin/review/${id}`, getAuthHeaders());
       setReviews(reviews.filter(r => r._id !== id));
       alert("Review deleted.");
     } catch (error) { alert("Failed."); }
@@ -50,7 +50,7 @@ const AdminPanel = () => {
   const handleDeleteUser = async (id) => {
     if(!window.confirm("Ban this user permanently?")) return;
     try {
-      await axios.delete(`http://localhost:5000/api/admin/user/${id}`, getAuthHeaders());
+      await axios.delete(`https://collaborative-watchlist-app-backend.onrender.com/api/admin/user/${id}`, getAuthHeaders());
       setUsers(users.filter(u => u._id !== id));
       alert("User banned.");
     } catch (error) { alert("Failed."); }

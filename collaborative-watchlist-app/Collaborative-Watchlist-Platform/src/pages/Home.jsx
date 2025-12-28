@@ -26,12 +26,12 @@ const Home = () => {
   const fetchMovies = async (currentPage) => {
     setLoading(true);
     try {
-      let url = "http://localhost:5000/api/movies/popular";
+      let url = "https://collaborative-watchlist-app-backend.onrender.com/api/movies/popular";
       let params = { page: currentPage }; // Sayfa numarasını gönderiyoruz
 
       // Filtre varsa endpoint değişir
       if (query || selectedGenre || selectedYear || selectedRating) {
-        url = "http://localhost:5000/api/movies/search";
+        url = "https://collaborative-watchlist-app-backend.onrender.com/api/movies/search";
         params = {
           ...params, // page parametresini koru
           query: query,
@@ -54,7 +54,7 @@ const Home = () => {
   useEffect(() => {
     const getGenres = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/movies/genres");
+        const res = await axios.get("https://collaborative-watchlist-app-backend.onrender.com/api/movies/genres");
         setGenres(res.data);
       } catch (error) { console.error("Genres fetch error", error); }
     };

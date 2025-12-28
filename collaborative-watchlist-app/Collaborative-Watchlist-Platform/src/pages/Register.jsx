@@ -23,7 +23,7 @@ const Register = () => {
     e.preventDefault();
     try {
       // Send POST request to backend API
-      await axios.post("http://localhost:5000/api/auth/register", formData);
+      await axios.post("https://collaborative-watchlist-app-backend.onrender.com/api/auth/register", formData);
       
       // Notify user and redirect to login page
       toast.success("Successfully registered! Please login.");

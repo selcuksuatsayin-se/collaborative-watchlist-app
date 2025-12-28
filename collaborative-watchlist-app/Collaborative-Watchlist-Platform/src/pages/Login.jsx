@@ -22,7 +22,7 @@ const Login = () => {
     e.preventDefault();
     try {
       // Send POST request to backend
-      const res = await axios.post("http://localhost:5000/api/auth/login", formData);
+      const res = await axios.post("https://collaborative-watchlist-app-backend.onrender.com/api/auth/login", formData);
       
       // Store the JWT token and user info in localStorage
       localStorage.setItem("token", res.data.token);

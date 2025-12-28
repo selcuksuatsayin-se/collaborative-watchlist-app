@@ -18,8 +18,8 @@ const Dashboard = () => {
     try {
       // Hem listelerimi hem davetlerimi paralel çekiyoruz
       const [listsRes, invitesRes] = await Promise.all([
-        axios.get("http://localhost:5000/api/watchlist", getAuthHeaders()),
-        axios.get("http://localhost:5000/api/watchlist/invites/pending", getAuthHeaders()) // YENİ İSTEK
+        axios.get("https://collaborative-watchlist-app-backend.onrender.com/api/watchlist", getAuthHeaders()),
+        axios.get("https://collaborative-watchlist-app-backend.onrender.com/api/watchlist/invites/pending", getAuthHeaders()) // YENİ İSTEK
       ]);
 
       setWatchlists(listsRes.data);
@@ -40,7 +40,7 @@ const Dashboard = () => {
   const handleInviteResponse = async (watchlistId, action) => {
     try {
       await axios.post(
-        `http://localhost:5000/api/watchlist/${watchlistId}/respond`,
+        `https://collaborative-watchlist-app-backend.onrender.com/api/watchlist/${watchlistId}/respond`,
         { action }, // 'accept' veya 'decline'
         getAuthHeaders()
       );
@@ -57,7 +57,7 @@ const Dashboard = () => {
     e.preventDefault();
     if (!newListName.trim()) return;
     try {
-      await axios.post("http://localhost:5000/api/watchlist", { title: newListName }, getAuthHeaders());
+      await axios.post("https://collaborative-watchlist-app-backend.onrender.com/api/watchlist", { title: newListName }, getAuthHeaders());
       setNewListName("");
       fetchData();
     } catch (error) { alert("Failed."); }

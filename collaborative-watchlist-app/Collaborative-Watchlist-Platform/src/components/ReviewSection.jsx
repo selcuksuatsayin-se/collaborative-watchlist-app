@@ -15,7 +15,7 @@ const ReviewSection = ({ movieId, movieTitle }) => {
 
   const fetchReviews = async () => {
     try {
-      const res = await axios.get(`http://localhost:5000/api/reviews/${movieId}`);
+      const res = await axios.get(`https://collaborative-watchlist-app-backend.onrender.com/api/reviews/${movieId}`);
       setReviews(res.data);
       setLoading(false);
     } catch (error) {
@@ -39,7 +39,7 @@ const ReviewSection = ({ movieId, movieTitle }) => {
 
     try {
       await axios.post(
-        `http://localhost:5000/api/reviews/${movieId}`,
+        `https://collaborative-watchlist-app-backend.onrender.com/api/reviews/${movieId}`,
         { 
           rating, 
           comment, 
@@ -60,7 +60,7 @@ const ReviewSection = ({ movieId, movieTitle }) => {
     // Silme işlemi kritik olduğu için window.confirm kalabilir, ama sonucu toast ile bildirilir.
     if (!window.confirm("Delete this review?")) return;
     try {
-      await axios.delete(`http://localhost:5000/api/reviews/${reviewId}`, getAuthHeaders());
+      await axios.delete(`https://collaborative-watchlist-app-backend.onrender.com/api/reviews/${reviewId}`, getAuthHeaders());
       toast.info("Review deleted.");
       fetchReviews();
     } catch (error) {

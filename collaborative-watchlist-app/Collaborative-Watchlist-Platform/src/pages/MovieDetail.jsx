@@ -23,7 +23,7 @@ const MovieDetail = () => {
   useEffect(() => {
     const fetchDetail = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/api/movies/${id}`);
+        const response = await axios.get(`https://collaborative-watchlist-app-backend.onrender.com/api/movies/${id}`);
         setMovie(response.data);
       } catch (error) {
         console.error("Detail Error:", error);
@@ -38,7 +38,7 @@ const MovieDetail = () => {
   const fetchMyLists = async () => {
     setListLoading(true);
     try {
-      const res = await axios.get("http://localhost:5000/api/watchlist", getAuthHeaders());
+      const res = await axios.get("https://collaborative-watchlist-app-backend.onrender.com/api/watchlist", getAuthHeaders());
       setMyLists(res.data);
       setShowModal(true); // Listeler gelince modali aç
     } catch (error) {
@@ -53,7 +53,7 @@ const MovieDetail = () => {
   const handleAddToList = async (watchlistId) => {
     try {
       await axios.post(
-        `http://localhost:5000/api/watchlist/${watchlistId}/add`,
+        `https://collaborative-watchlist-app-backend.onrender.com/api/watchlist/${watchlistId}/add`,
         {
           tmdbId: movie.id,
           title: movie.title,
