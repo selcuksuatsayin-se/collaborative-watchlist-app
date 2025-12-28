@@ -163,3 +163,21 @@ exports.removeMovieFromWatchlist = async (req, res) => {
     res.status(500).json({ message: "Delete process failed." });
   }
 };
+
+exports.deleteWatchlist = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const watchlist = await Watchlist.findById(id);
+
+    if (!watchlist) return res.status(404).json({ message: "List not found" });
+
+    if (watchlist.creator.toString() !== req.user.id) {
+      return res.status(403).json({ message: "Not authorized to delete this list" });
+    }
+
+    await watchlist.deleteOne();
+    res.status(200).json({ message: "Watchlist deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to delete watchlist" });
+  }
+};

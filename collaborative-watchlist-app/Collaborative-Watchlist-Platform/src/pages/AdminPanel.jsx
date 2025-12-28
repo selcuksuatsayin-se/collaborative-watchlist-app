@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { useNavigate, Link } from "react-router-dom"; // Link'i import etmeyi unutma
+import { useNavigate, Link } from "react-router-dom";
+import { toast } from "react-toastify"; // Toast Import
+import ConfirmModal from "../components/ConfirmModal"; // Modal Import
 
 const AdminPanel = () => {
   const [stats, setStats] = useState({ userCount: 0, reviewCount: 0 });
@@ -8,6 +10,11 @@ const AdminPanel = () => {
   const [users, setUsers] = useState([]);
   const [activeTab, setActiveTab] = useState("reviews"); 
   const navigate = useNavigate();
+
+  // Modal State'leri
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalAction, setModalAction] = useState(null); // 'deleteReview' or 'banUser'
+  const [selectedId, setSelectedId] = useState(null);
 
   const getAuthHeaders = () => {
     const token = localStorage.getItem("token");
@@ -27,7 +34,7 @@ const AdminPanel = () => {
       setUsers(usersRes.data);
     } catch (error) {
       console.error("Admin Access Error:", error);
-      alert("Access Denied: You are not an admin.");
+      toast.error("Access Denied: You are not an admin.");
       navigate("/");
     }
   };
@@ -36,28 +43,47 @@ const AdminPanel = () => {
     fetchData();
   }, []);
 
-  // DELETE REVIEW
-  const handleDeleteReview = async (id) => {
-    if(!window.confirm("Delete this review permanently?")) return;
-    try {
-      await axios.delete(`https://collaborative-watchlist-app-backend.onrender.com/api/admin/review/${id}`, getAuthHeaders());
-      setReviews(reviews.filter(r => r._id !== id));
-      alert("Review deleted.");
-    } catch (error) { alert("Failed."); }
+  // --- MODAL TETİKLEYİCİLER ---
+  const confirmDeleteReview = (id) => {
+    setSelectedId(id);
+    setModalAction("deleteReview");
+    setModalOpen(true);
   };
 
-  // DELETE USER
-  const handleDeleteUser = async (id) => {
-    if(!window.confirm("Ban this user permanently?")) return;
+  const confirmBanUser = (id) => {
+    setSelectedId(id);
+    setModalAction("banUser");
+    setModalOpen(true);
+  };
+
+  // --- İŞLEMİ ONAYLA VE YAP (Render URL) ---
+  const handleConfirmAction = async () => {
     try {
-      await axios.delete(`https://collaborative-watchlist-app-backend.onrender.com/api/admin/user/${id}`, getAuthHeaders());
-      setUsers(users.filter(u => u._id !== id));
-      alert("User banned.");
-    } catch (error) { alert("Failed."); }
+      if (modalAction === "deleteReview") {
+        await axios.delete(
+            `https://collaborative-watchlist-app-backend.onrender.com/api/admin/review/${selectedId}`, 
+            getAuthHeaders()
+        );
+        setReviews(reviews.filter(r => r._id !== selectedId));
+        toast.success("Review deleted successfully.");
+      } 
+      else if (modalAction === "banUser") {
+        await axios.delete(
+            `https://collaborative-watchlist-app-backend.onrender.com/api/admin/user/${selectedId}`, 
+            getAuthHeaders()
+        );
+        setUsers(users.filter(u => u._id !== selectedId));
+        toast.success("User banned successfully.");
+      }
+    } catch (error) {
+      toast.error("Action failed.");
+    } finally {
+      setModalOpen(false); // Modalı kapat
+    }
   };
 
   return (
-    <div className="container mx-auto mt-10 px-4">
+    <div className="container mx-auto mt-10 px-4 pb-20">
       <h1 className="text-3xl font-bold text-red-500 mb-6">🛡️ Admin Moderation Panel</h1>
       
       {/* STATS CARDS */}
@@ -99,12 +125,12 @@ const AdminPanel = () => {
                   <span className="text-gray-400 text-sm ml-2">by {rev.user?.username || "Unknown"}</span>
                 </p>
                 
-                {/* YENİ KISIM: Film Başlığı ve Linki */}
+                {/* Film Başlığı ve Linki */}
                 <p className="text-blue-400 text-sm font-semibold mb-2 flex items-center gap-2">
                   Movie: 
                   <Link to={`/movie/${rev.tmdbId}`} target="_blank" className="hover:underline flex items-center gap-1">
-                     {rev.movieTitle || `ID: ${rev.tmdbId}`} 
-                     <span className="text-xs text-gray-500">↗</span>
+                      {rev.movieTitle || `ID: ${rev.tmdbId}`} 
+                      <span className="text-xs text-gray-500">↗</span>
                   </Link>
                 </p>
 
@@ -112,7 +138,7 @@ const AdminPanel = () => {
               </div>
               
               <button 
-                onClick={() => handleDeleteReview(rev._id)}
+                onClick={() => confirmDeleteReview(rev._id)}
                 className="ml-4 bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-xs font-bold whitespace-nowrap"
               >
                 Delete Content
@@ -133,7 +159,7 @@ const AdminPanel = () => {
               </div>
               {u.role !== "admin" && (
                 <button 
-                  onClick={() => handleDeleteUser(u._id)}
+                  onClick={() => confirmBanUser(u._id)}
                   className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-xs font-bold"
                 >
                   Ban User
@@ -143,6 +169,16 @@ const AdminPanel = () => {
           ))}
         </div>
       )}
+
+      {/* --- CONFIRMATION MODAL --- */}
+      <ConfirmModal 
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        onConfirm={handleConfirmAction}
+        title={modalAction === "deleteReview" ? "Delete Content?" : "Ban User?"}
+        message={modalAction === "deleteReview" ? "Are you sure you want to remove this review permanently?" : "Are you sure you want to ban this user permanently? They will lose access immediately."}
+        isDanger={true}
+      />
     </div>
   );
 };

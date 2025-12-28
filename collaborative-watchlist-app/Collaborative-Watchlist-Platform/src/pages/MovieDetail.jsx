@@ -1,3 +1,4 @@
+import { toast } from "react-toastify";
 import ReviewSection from "../components/ReviewSection";
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
@@ -61,10 +62,10 @@ const MovieDetail = () => {
         },
         getAuthHeaders()
       );
-      alert("Movie added to watchlist!");
-      setShowModal(false); // Modali kapat
+      toast.success("Movie added to watchlist!");
+      setShowModal(false);
     } catch (error) {
-      alert(error.response?.data?.message || "Failed to add movie.");
+      toast.error(error.response?.data?.message || "Failed to add movie.");
     }
   };
 

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { toast } from "react-toastify"; // <-- Toast Import
+import { toast } from "react-toastify";
 
 const ReviewSection = ({ movieId, movieTitle }) => {
   const [reviews, setReviews] = useState([]);
@@ -30,9 +30,12 @@ const ReviewSection = ({ movieId, movieTitle }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!user) return toast.error("Please login to post a review."); // Alert yerine Toast
+    if (!user) return toast.error("Please login to post a review.");
 
-    // Validasyon
+    if (!comment.trim()) {
+      return toast.warning("Please enter a comment!");
+    }
+
     if (!movieTitle) {
       return toast.error("Movie title information is missing. Please refresh the page.");
     }
@@ -43,12 +46,12 @@ const ReviewSection = ({ movieId, movieTitle }) => {
         { 
           rating, 
           comment, 
-          movieTitle: movieTitle // <-- BURASI EKSİKTİ, ARTIK TAMAM
+          movieTitle: movieTitle
         },
         getAuthHeaders()
       );
       
-      toast.success("Review posted successfully!"); // Başarılı mesajı
+      toast.success("Review posted successfully!");
       setComment("");
       fetchReviews();
     } catch (error) {
@@ -57,7 +60,6 @@ const ReviewSection = ({ movieId, movieTitle }) => {
   };
 
   const handleDelete = async (reviewId) => {
-    // Silme işlemi kritik olduğu için window.confirm kalabilir, ama sonucu toast ile bildirilir.
     if (!window.confirm("Delete this review?")) return;
     try {
       await axios.delete(`https://collaborative-watchlist-app-backend.onrender.com/api/reviews/${reviewId}`, getAuthHeaders());
@@ -83,7 +85,6 @@ const ReviewSection = ({ movieId, movieTitle }) => {
                 placeholder={`Share your thoughts on ${movieTitle}...`}
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
-                required
               ></textarea>
             </div>
             <div>

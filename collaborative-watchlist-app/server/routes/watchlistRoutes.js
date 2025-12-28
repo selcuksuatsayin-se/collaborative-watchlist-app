@@ -17,4 +17,6 @@ router.get("/invites/pending", authMiddleware, watchlistController.getPendingInv
 
 router.post("/:watchlistId/respond", authMiddleware, watchlistController.respondToInvite);
 
+router.delete("/:id", authMiddleware, watchlistController.deleteWatchlist);
+
 module.exports = router;

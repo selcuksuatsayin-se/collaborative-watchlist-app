@@ -4,7 +4,7 @@ module.exports = (req, res, next) => {
   const token = req.header("Authorization");
 
   if (!token) {
-    return res.status(401).json({ message: "Yetkisiz erişim. Lütfen giriş yapın." });
+    return res.status(401).json({ message: "Unauthorized access. Please log in." });
   }
 
   try {
