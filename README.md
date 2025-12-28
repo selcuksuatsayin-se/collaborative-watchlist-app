@@ -2,6 +2,9 @@
 
 This is a full-stack web application built with React (Frontend) and Node.js/Express (Backend) . Follow the steps below to set up the project on your local machine.
 
+## Demo:
+https://collaborative-watchlist-app.vercel.app
+
 ## 1. Clone the Project
 
 Open your terminal and run the following commands:
