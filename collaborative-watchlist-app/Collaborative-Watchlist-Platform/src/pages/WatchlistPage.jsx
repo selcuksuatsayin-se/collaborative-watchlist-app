@@ -1,13 +1,18 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import axios from "axios";
+import { toast } from "react-toastify"; // Toast import edildi
+import ConfirmModal from "../components/ConfirmModal"; // Modal import edildi
 
 const WatchlistPage = () => {
   const { id } = useParams(); // URL'den watchlist ID'sini al
   const [watchlist, setWatchlist] = useState(null);
   const [loading, setLoading] = useState(true);
   const [inviteEmail, setInviteEmail] = useState("");
-  const [message, setMessage] = useState("");
+  
+  // MODAL STATE'LERİ (YENİ)
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [movieToDelete, setMovieToDelete] = useState(null);
 
   // Token'ı al
   const getAuthHeaders = () => {
@@ -19,7 +24,6 @@ const WatchlistPage = () => {
   const fetchWatchlist = async () => {
     try {
       const res = await axios.get(`https://collaborative-watchlist-app-backend.onrender.com/api/watchlist`, getAuthHeaders());
-      // Gelen tüm listelerden şu anki ID'ye ait olanı bul (Backend'i tekil getirecek şekilde güncellemedik, bu pratik bir çözüm)
       const currentList = res.data.find(list => list._id === id);
       setWatchlist(currentList);
       setLoading(false);
@@ -33,39 +37,49 @@ const WatchlistPage = () => {
     fetchWatchlist();
   }, [id]);
 
-  // Arkadaş Davet Et
+  // Arkadaş Davet Et (Toast ile Güncellendi)
   const handleInvite = async (e) => {
     e.preventDefault();
+    if (!inviteEmail.trim()) return toast.warning("Please enter an email address.");
+
     try {
       await axios.post(
         `https://collaborative-watchlist-app-backend.onrender.com/api/watchlist/${id}/invite`,
         { email: inviteEmail },
         getAuthHeaders()
       );
-      setMessage("User invited successfully!");
+      toast.success("User invited successfully!"); // Mesaj yerine Toast
       setInviteEmail("");
-      fetchWatchlist(); // Listeyi yenile (yeni kişiyi görmek için)
+      fetchWatchlist(); 
     } catch (error) {
-      setMessage(error.response?.data?.message || "Failed to invite user.");
+      toast.error(error.response?.data?.message || "Failed to invite user."); // Hata mesajı Toast
     }
   };
 
-  // Film Sil
-  const handleRemoveMovie = async (movieId) => {
-    if (!window.confirm("Are you sure you want to remove this movie?")) return;
+  // Film Silme - Adım 1: Modalı Aç
+  const confirmRemoveMovie = (movieId) => {
+    setMovieToDelete(movieId);
+    setIsDeleteModalOpen(true);
+  };
 
+  // Film Silme - Adım 2: İşlemi Gerçekleştir (Modal Onaylayınca Çalışır)
+  const handleRemoveMovie = async () => {
     try {
       await axios.delete(
-        `https://collaborative-watchlist-app-backend.onrender.com/api/watchlist/${id}/remove/${movieId}`,
+        `https://collaborative-watchlist-app-backend.onrender.com/api/watchlist/${id}/remove/${movieToDelete}`,
         getAuthHeaders()
       );
+      
       // State'i güncelle (Sayfayı yenilemeden filmi ekrandan sil)
       setWatchlist(prev => ({
         ...prev,
-        movies: prev.movies.filter(m => m.tmdbId !== movieId)
+        movies: prev.movies.filter(m => m.tmdbId !== movieToDelete)
       }));
+      
+      toast.success("Movie removed from list.");
+      setIsDeleteModalOpen(false); // Modalı kapat
     } catch (error) {
-      alert("Failed to remove movie.");
+      toast.error("Failed to remove movie.");
     }
   };
 
@@ -73,7 +87,7 @@ const WatchlistPage = () => {
   if (!watchlist) return <div className="text-red-500 text-center mt-10">Watchlist not found or access denied.</div>;
 
   return (
-    <div className="container mx-auto mt-10 px-4">
+    <div className="container mx-auto mt-10 px-4 pb-20">
       <Link to="/dashboard" className="text-blue-400 hover:underline mb-4 inline-block">← Back to Dashboard</Link>
       
       {/* Header */}
@@ -104,13 +118,12 @@ const WatchlistPage = () => {
               className="flex-1 p-2 rounded bg-gray-700 text-white text-sm border border-gray-600 focus:outline-none focus:border-blue-500"
               value={inviteEmail}
               onChange={(e) => setInviteEmail(e.target.value)}
-              required
+              // required özelliği kaldırıldı, kontrolü handleInvite içinde yapıyoruz
             />
-            <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded transition">
+            <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded transition font-bold">
               Invite
             </button>
           </form>
-          {message && <p className={`text-sm mt-2 ${message.includes("success") ? "text-green-400" : "text-red-400"}`}>{message}</p>}
         </div>
       </div>
 
@@ -120,7 +133,7 @@ const WatchlistPage = () => {
       {watchlist.movies.length > 0 ? (
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
           {watchlist.movies.map((movie) => (
-            <div key={movie.tmdbId} className="bg-gray-800 rounded-lg overflow-hidden shadow group relative">
+            <div key={movie.tmdbId} className="bg-gray-800 rounded-lg overflow-hidden shadow group relative border border-gray-700">
               <Link to={`/movie/${movie.tmdbId}`}>
                 <img 
                   src={movie.posterPath ? `https://image.tmdb.org/t/p/w500${movie.posterPath}` : "https://via.placeholder.com/500x750"} 
@@ -129,8 +142,9 @@ const WatchlistPage = () => {
                 />
               </Link>
               
+              {/* REMOVE BUTTON (Modal Tetikler) */}
               <button 
-                onClick={() => handleRemoveMovie(movie.tmdbId)}
+                onClick={() => confirmRemoveMovie(movie.tmdbId)}
                 className="absolute top-2 right-2 bg-red-600 text-white w-8 h-8 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition shadow-lg hover:bg-red-700"
                 title="Remove from list"
               >
@@ -149,6 +163,16 @@ const WatchlistPage = () => {
           <Link to="/" className="text-blue-400 hover:underline mt-2 inline-block">Go discover movies to add!</Link>
         </div>
       )}
+
+      {/* --- CONFIRMATION MODAL (YENİ EKLENDİ) --- */}
+      <ConfirmModal 
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={handleRemoveMovie}
+        title="Remove Movie?"
+        message="Are you sure you want to remove this movie from the watchlist?"
+        isDanger={true}
+      />
     </div>
   );
 };
