@@ -16,7 +16,7 @@ The backend handles the database connection and API logic .
 
 Navigate to the server folder:
 
-Install dependencies: (Express, Mongoose, Dotenv, and CORS packages)
+Install dependencies: (Express, Mongoose, Dotenv, bcryptjs and jsonwebtoken, and CORS packages, axios)
 
 ```Bash
 cd server
@@ -26,9 +26,10 @@ npm install
 **Configure Environment Variables:** Create a file named .env in the server folder and add your credentials:
 
 ```Bash
-
 PORT=5000
-MONGO_URI=mongodb+srv://dbUser:dbPassword@collaborative-watchlist.9mlnnho.mongodb.net/movieDB?retryWrites=true&w=majority&appName=Collaborative-Watchlist-Platform-Cluster
+MONGO_URI=your_mongodb_connection_string_here
+JWT_SECRET=your_jwt_secret_key
+TMDB_API_KEY=your_api_key_here
 ```
 
 ## 3. Frontend (Client) Setup
@@ -37,7 +38,7 @@ The frontend is built with React and Tailwind CSS.
 
 Navigate to the client folder: (Open a new terminal tab)
 
-Install dependencies: (This installs Vite, Tailwind, and React packages)
+Install dependencies: (This installs Vite, Tailwind, react-toastify, axios react-router-dom and React packages)
 
 ```Bash
 cd Collaborative-Watchlist-Platform
